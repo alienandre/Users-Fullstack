@@ -13,7 +13,10 @@ export default function UserList() {
   function getUsers() {
     fetch('http://localhost:8080/user')
       .then(response => response.json())
-      .then(data => setUsers(data));
+      .then(data => setUsers(data))
+      .catch(error => {
+        console.error('The users MySQL database is likely down', error);
+      });
   }
   const [show, setShow] = useState(false);
 
