@@ -19,41 +19,54 @@ export default function UserList() {
 
   const handleClose = () => setShow(false);
 
-  const [updateId, setUpdateId] = useState('');
-
   function handleShow(user) {
-    setUpdateId(user.id);
-    setNameUpdate(user.name);
-    setAgeUpdate(user.age);
-    setImgUrlUpdate(user.imgUrl);
-    //setUserUpdate({ nameUpdate: user.name, ageUpate: user.age, imgUrlUpdate: user.imgUrl });
+    setUserUpdate((currentUser) => ({
+      ...currentUser, 
+      idUpdate: user.id, 
+      nameUpdate: user.name, 
+      ageUpdate:user.age, 
+      imgUrlUpdate: user.imgUrl
+    }));
     setShow(true);
   }
 
-  const [nameUpdate, setNameUpdate] = useState('');
-  const [ageUpdate, setAgeUpdate] = useState('');
-  const[imgUrlUpdate, setImgUrlUpdate] = useState('');
-  //const [userUpdate, setUserUpdate] = useState({ nameUpdate: '', ageUpdate: '', imgUrlUpdate: ''});
+  const [userUpdate, setUserUpdate] = useState({ 
+    idUpdate: '', nameUpdate: '', ageUpdate: '', imgUrlUpdate: ''
+  });
 
-  function handleNameChange(event) {
-    setNameUpdate(event.target.value);
+  function handleNameChange(name) {
+    setUserUpdate((currentUser) => ({...currentUser, nameUpdate: name}));
   }
 
-  function handleAgeChange(event) {
-    setAgeUpdate(event.target.value);
+  function handleAgeChange(age) {
+    setUserUpdate((currentUser) => ({...currentUser, ageUpdate: age}));
   }
 
-  function handleImgChange(event) {
-    setImgUrlUpdate(event.target.value);
+  
+  function handleImgChange(imgUrl) {
+    setUserUpdate((currentUser) => ({...currentUser, imgUrlUpdate: imgUrl}));
+  }
+
+  function handleFormChangeName(event) {
+    handleNameChange(event.target.value);
+  }
+
+  function handleFormChangeAge(event){
+   handleAgeChange(event.target.value);
+  }
+
+  function handleFormChangeImgUrl(event){
+    handleImgChange(event.target.value);
   }
 
   function handleSaveChanges() {
-    handleUpdate(updateId, nameUpdate, ageUpdate, imgUrlUpdate);
+    console.log(userUpdate);
+    handleUpdate(userUpdate.idUpdate, userUpdate.nameUpdate, userUpdate.ageUpdate, userUpdate.imgUrlUpdate);
   }
 
-  function handleUpdate(id, name, age, imgUrl) {
+  function handleUpdate(idUpdate, nameUpdate, ageUpdate, imgUrlUpdate) {
     let userToUpdate = {
-      id: id, name: name, age: age, imgUrl: imgUrl
+      id: idUpdate, name: nameUpdate, age: ageUpdate, imgUrl: imgUrlUpdate
     }
     fetch('http://localhost:8080/user' , {
       method: 'PUT',
@@ -62,18 +75,19 @@ export default function UserList() {
       },
       body: JSON.stringify(userToUpdate)
     })
-    .then(data => {
+    .then(response => {
       setUsers(users.map(user => {
         if (user.id === userToUpdate.id) {
           return userToUpdate;
         }
         return user;
       }));
-      console.log('User updated succesfully');
+      console.log('User updated succesfully', response);
     })
     .catch(error => {
       console.error('Error updating data:', error);
     });
+    console.log(userToUpdate);
   }
 
 
@@ -86,8 +100,6 @@ export default function UserList() {
     })
       .then(response => {
         console.log('Data deleted succesfully', response);
-      })
-      .then(data => {
         setUsers(users.filter(user => user.id !== id));
       })
       .catch(error => {
@@ -133,28 +145,28 @@ export default function UserList() {
                 <Form.Label>Name</Form.Label>
                 <Form.Control
                   type='text'
-                  value={nameUpdate}
+                  value={userUpdate.nameUpdate}
                   autoFocus
-                  placeholder={nameUpdate}
-                  onChange={handleNameChange}
+                  placeholder={userUpdate.nameUpdate}
+                  onChange={handleFormChangeName}
                 />
               </Form.Group>
               <Form.Group controlId="formAge">
                 <Form.Label>Age</Form.Label>
                 <Form.Control
                   type='number'
-                  placeholder={nameUpdate}
-                  value={ageUpdate}
-                  onChange={handleAgeChange}
+                  placeholder={userUpdate.ageUpdate}
+                  value={userUpdate.ageUpdate}
+                  onChange={handleFormChangeAge}
                 />
               </Form.Group>
               <Form.Group controlId="formImgUrl">
                 <Form.Label>Profile Image URL</Form.Label>
                 <Form.Control
                   type='text'
-                  placeholder={imgUrlUpdate}
-                  value={imgUrlUpdate}
-                  onChange={handleImgChange}
+                  placeholder={userUpdate.imgUrlUpdate}
+                  value={userUpdate.imgUrlUpdate}
+                  onChange={handleFormChangeImgUrl}
                 />
               </Form.Group>
             </Form>
